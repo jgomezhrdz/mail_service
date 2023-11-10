@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	mailing "mail_service/internal"
-	"mail_service/internal/platform/storage/mysql"
 
 	"github.com/gin-gonic/gin"
 )
@@ -12,11 +11,11 @@ import (
 type createRequest struct {
 	IDCliente string `json:"idCliente" binding:"required"`
 	Nombre    string `json:"nombre"    binding:"required"`
-	IDPlan    string `json:"verified"  binding:"required"`
+	IDPlan    string `json:"idPlan"  binding:"required"`
 }
 
 // CreateHandler returns an HTTP handler for courses creation.
-func CreateHandler(clienteReposiroty mysql.ClienteRepository) gin.HandlerFunc {
+func CreateHandler(clienteReposiroty mailing.ClienteRepository) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req createRequest
 
@@ -36,7 +35,7 @@ func CreateHandler(clienteReposiroty mysql.ClienteRepository) gin.HandlerFunc {
 			return
 		}
 
-		ctx.Status(http.StatusCreated)
+		ctx.JSON(http.StatusCreated, cliente.ID().String())
 	}
 }
 

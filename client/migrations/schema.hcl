@@ -7,22 +7,44 @@ table "clientes" {
   schema = schema.example
   column "id" {
     null = false
-    type = "varchar(36)"  # Assuming UUID is stored as a varchar(36)
+    type = varchar(36)  # Assuming UUID is stored as a varchar(36)
   }
   column "nombre" {
-    null = true
-    type = "varchar(255)"  # Adjust the length accordingly
+    null = false
+    type = varchar(255)  # Adjust the length accordingly
   }
-  column "id_pedido" {
-    null = true
-    type = "varchar(36)"  # Assuming UUID is stored as a varchar(36)
+  column "id_plan" {
+    null = false
+    type = varchar(36)  # Assuming UUID is stored as a varchar(36)
   }
   primary_key {
     columns = [column.id]
   }
-  foreign_key "id_pedido_fk" {
-    columns     = [column.id_pedido]
-    ref_table   = "pedidos"
-    ref_columns = ["id"]
+  foreign_key "id_plan_fk" {
+    columns     = [column.id_plan]
+    ref_columns = [table.planes.column.id]
+  }
+}
+
+table "planes" {
+  schema = schema.example
+  column "id" {
+    null = false
+    type = varchar(36)  # Assuming UUID is stored as a varchar(36)
+  }
+  column "nombre" {
+    null = false
+    type = varchar(255)  # Adjust the length accordingly
+  }
+  column "quota_month" {
+    null = false
+    type = int(255)  # Assuming UUID is stored as a varchar(36)
+  }
+  column "quota_day" {
+    null = false
+    type = int(255)  # Assuming UUID is stored as a varchar(36)
+  }
+  primary_key {
+    columns = [column.id]
   }
 }

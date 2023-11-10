@@ -13,11 +13,11 @@ const (
 	host = "localhost"
 	port = 8080
 
-	dbUser = "codely"
-	dbPass = "codely"
+	dbUser = "root"
+	dbPass = "pass"
 	dbHost = "localhost"
-	dbPort = "3306"
-	dbName = "codely"
+	dbPort = "10101"
+	dbName = "example"
 )
 
 func Run() error {
@@ -29,6 +29,6 @@ func Run() error {
 
 	clienteReposiroty := mysql.NewClienteRepository(db)
 
-	srv := server.New(host, port, *clienteReposiroty)
+	srv := server.New(host, port, clienteReposiroty)
 	return srv.Run()
 }

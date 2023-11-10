@@ -1,6 +1,7 @@
 package mailing
 
 import (
+	"context"
 	"errors"
 	"fmt"
 
@@ -14,6 +15,10 @@ type Cliente struct {
 	id     ClienteID
 	nombre ClienteNombre
 	idPlan PlanID
+}
+
+type ClienteRepository interface {
+	Save(ctx context.Context, cliente Cliente) error
 }
 
 type ClienteID struct {

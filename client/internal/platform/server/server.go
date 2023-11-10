@@ -3,10 +3,10 @@ package server
 import (
 	"fmt"
 	"log"
+	mailing "mail_service/internal"
 	"mail_service/internal/platform/server/handler/clientes"
 	"mail_service/internal/platform/server/handler/health"
 	"mail_service/internal/platform/server/middleware/cors"
-	"mail_service/internal/platform/storage/mysql"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,13 +15,15 @@ type Server struct {
 	httpAddr string
 	engine   *gin.Engine
 
-	clienteReposiroty mysql.ClienteRepository
+	clienteReposiroty mailing.ClienteRepository
 }
 
-func New(host string, port uint, courseRepository mysql.ClienteRepository) Server {
+func New(host string, port uint, clienteReposiroty mailing.ClienteRepository) Server {
 	srv := Server{
 		engine:   gin.New(),
 		httpAddr: fmt.Sprintf("%s:%d", host, port),
+
+		clienteReposiroty: clienteReposiroty,
 	}
 
 	srv.registerRoutes()

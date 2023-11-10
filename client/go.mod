@@ -2,10 +2,7 @@ module mail_service
 
 go 1.19
 
-require (
-	github.com/gin-gonic/gin v1.9.1
-	github.com/kelseyhightower/envconfig v1.4.0
-)
+require github.com/gin-gonic/gin v1.9.1
 
 require github.com/huandu/xstrings v1.3.2 // indirect
 

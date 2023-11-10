@@ -6,6 +6,6 @@ const (
 
 type sqlCliente struct {
 	Id     string `db:"id"`
-	Name   string `db:"name"`
+	Name   string `db:"nombre"`
 	IdPlan string `db:"id_plan"`
 }

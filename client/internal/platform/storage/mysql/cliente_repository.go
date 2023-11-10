@@ -22,12 +22,12 @@ func NewClienteRepository(db *sql.DB) *ClienteRepository {
 }
 
 // Save implements the mooc.ClienteRepository interface.
-func (r *ClienteRepository) Save(ctx context.Context, course mailing.Cliente) error {
+func (r *ClienteRepository) Save(ctx context.Context, cliente mailing.Cliente) error {
 	courseSQLStruct := sqlbuilder.NewStruct(new(sqlCliente))
 	query, args := courseSQLStruct.InsertInto(sqlClienteTable, sqlCliente{
-		Id:     course.ID().String(),
-		Name:   course.NOMBRE().String(),
-		IdPlan: course.IDPLAN().String(),
+		Id:     cliente.ID().String(),
+		Name:   cliente.NOMBRE().String(),
+		IdPlan: cliente.IDPLAN().String(),
 	}).Build()
 
 	_, err := r.db.ExecContext(ctx, query, args...)
