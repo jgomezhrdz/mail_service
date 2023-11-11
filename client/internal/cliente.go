@@ -18,6 +18,7 @@ type Cliente struct {
 }
 
 type ClienteRepository interface {
+	Get(ctx context.Context) error
 	Save(ctx context.Context, cliente Cliente) error
 }
 
@@ -120,4 +121,13 @@ func (c Cliente) NOMBRE() ClienteNombre {
 
 func (c Cliente) IDPLAN() PlanID {
 	return c.idPlan
+}
+
+func (c Cliente) TOJSON() map[string]interface{} {
+	return map[string]interface{}{
+		"id":     c.ID().String(),
+		"nombre": c.NOMBRE().String(),
+		"idPlan": c.IDPLAN().String(),
+		// Add other fields as needed
+	}
 }

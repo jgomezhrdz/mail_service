@@ -39,5 +39,6 @@ func (s *Server) registerRoutes() {
 	s.engine.Use(cors.Middleware())
 
 	s.engine.GET("/health", health.CheckHandler())
+	s.engine.GET("/courses", clientes.GetHandler(s.clienteReposiroty))
 	s.engine.POST("/courses", clientes.CreateHandler(s.clienteReposiroty))
 }
