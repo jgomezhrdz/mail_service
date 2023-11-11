@@ -2,103 +2,37 @@ package mailing
 
 import (
 	"context"
-	"errors"
-	"fmt"
-
-	"github.com/google/uuid"
+	"mail_service/internal/platform/shared/types"
 )
 
-var ErrEmptyCourseName = errors.New("the field Course Name can not be empty")
-
-// Course is the data structure that represents a course.
 type Cliente struct {
-	id     ClienteID
-	nombre ClienteNombre
-	idPlan PlanID
+	id     types.UUID
+	nombre types.NonEmptyString
+	idPlan types.UUID
 }
 
 type ClienteRepository interface {
-	Get(ctx context.Context) error
+	Get(ctx context.Context) ([]struct {
+		Client Cliente
+		Plan   Plan
+	}, error)
 	Save(ctx context.Context, cliente Cliente) error
-}
-
-type ClienteID struct {
-	value string
-}
-
-var ErrInvalidID = errors.New("the field ID is not a valid UUID")
-
-func NewClienteID(value string) (ClienteID, error) {
-	v, err := uuid.Parse(value)
-	if err != nil {
-		return ClienteID{}, fmt.Errorf("%w: %s", ErrInvalidID, value)
-	}
-
-	return ClienteID{
-		value: v.String(),
-	}, nil
-}
-
-func (id ClienteID) String() string {
-	return id.value
-}
-
-type ClienteNombre struct {
-	value string
-}
-
-var ErrEmptyNombre = errors.New("the field Nombre can not be empty")
-
-func NewClienteNombre(value string) (ClienteNombre, error) {
-	if value == "" {
-		return ClienteNombre{}, ErrEmptyNombre
-	}
-
-	return ClienteNombre{
-		value: value,
-	}, nil
-}
-
-func (id ClienteNombre) String() string {
-	return id.value
-}
-
-// PlanID represents the id plan related to the client.
-type PlanID struct {
-	value string
-}
-
-var ErrInvalidPlan = errors.New("the field Plan ID is not a valid UUID")
-
-func NewClientePlan(value string) (PlanID, error) {
-	v, err := uuid.Parse(value)
-	if err != nil {
-		return PlanID{}, fmt.Errorf("%w: %s", ErrInvalidPlan, value)
-	}
-
-	return PlanID{
-		value: v.String(),
-	}, nil
-}
-
-func (id PlanID) String() string {
-	return id.value
 }
 
 // NewCourse creates a new course.
 func NewCliente(id string, nombre string, idPlan string) (Cliente, error) {
 
-	idVO, err := NewClienteID(id)
+	idVO, err := types.NewUUID(id)
 	if err != nil {
 		return Cliente{}, err
 	}
 
-	nombreVO, err := NewClienteNombre(nombre)
+	nombreVO, err := types.NewNonEmptyString(nombre)
 	if err != nil {
 		return Cliente{}, err
 	}
 
-	planVO, err := NewClientePlan(idPlan)
+	planVO, err := types.NewUUID(idPlan)
 	if err != nil {
 		return Cliente{}, err
 	}
@@ -111,23 +45,23 @@ func NewCliente(id string, nombre string, idPlan string) (Cliente, error) {
 }
 
 // ID returns the course unique identifier.
-func (c Cliente) ID() ClienteID {
+func (c Cliente) ID() types.UUID {
 	return c.id
 }
 
-func (c Cliente) NOMBRE() ClienteNombre {
+func (c Cliente) NOMBRE() types.NonEmptyString {
 	return c.nombre
 }
 
-func (c Cliente) IDPLAN() PlanID {
+func (c Cliente) IDPLAN() types.UUID {
 	return c.idPlan
 }
 
 func (c Cliente) TOJSON() map[string]interface{} {
 	return map[string]interface{}{
-		"id":     c.ID().String(),
-		"nombre": c.NOMBRE().String(),
-		"idPlan": c.IDPLAN().String(),
+		"id":     c.ID().Value(),
+		"nombre": c.NOMBRE().Value(),
+		"idPlan": c.IDPLAN().Value(),
 		// Add other fields as needed
 	}
 }

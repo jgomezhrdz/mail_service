@@ -35,6 +35,6 @@ func CreateHandler(clienteReposiroty mailing.ClienteRepository) gin.HandlerFunc 
 			return
 		}
 
-		ctx.JSON(http.StatusCreated, cliente.ID().String())
+		ctx.JSON(http.StatusCreated, cliente.ID().Value())
 	}
 }

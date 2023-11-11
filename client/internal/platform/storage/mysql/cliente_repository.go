@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	mailing "mail_service/internal"
-	tools "mail_service/internal/platform/shared/tools"
 
 	"github.com/huandu/go-sqlbuilder"
 )
@@ -27,9 +26,9 @@ func NewClienteRepository(db *sql.DB) *ClienteRepository {
 func (r *ClienteRepository) Save(ctx context.Context, cliente mailing.Cliente) error {
 	clientSQLStruct := sqlbuilder.NewStruct(new(sqlCliente))
 	query, args := clientSQLStruct.InsertInto(sqlClienteTable, sqlCliente{
-		Id:     cliente.ID().String(),
-		Name:   cliente.NOMBRE().String(),
-		IdPlan: cliente.IDPLAN().String(),
+		Id:     cliente.ID().Value(),
+		Nombre: cliente.NOMBRE().Value(),
+		IdPlan: cliente.IDPLAN().Value(),
 	}).Build()
 
 	_, err := r.db.ExecContext(ctx, query, args...)
@@ -41,32 +40,52 @@ func (r *ClienteRepository) Save(ctx context.Context, cliente mailing.Cliente) e
 }
 
 // Save implements the mooc.ClienteRepository interface.
-func (r *ClienteRepository) Get(ctx context.Context) error {
+func (r *ClienteRepository) Get(ctx context.Context) ([]struct {
+	Client mailing.Cliente
+	Plan   mailing.Plan
+}, error) {
 	sb :=
 		sqlbuilder.Select("clientes.*", "planes.*").From("clientes").JoinWithOption(sqlbuilder.InnerJoin, "planes", "clientes.id_plan = planes.id")
 	sql, args := sb.Build()
 
 	rows, err := r.db.QueryContext(ctx, sql, args...)
 	if err != nil {
-		return fmt.Errorf("error trying to get cliente on database: %v", err)
+		return nil, fmt.Errorf("error trying to get cliente on database: %v", err)
 	}
 	defer rows.Close()
+
+	var responseData []struct {
+		Client mailing.Cliente
+		Plan   mailing.Plan
+	}
 
 	for rows.Next() {
 		var cliente sqlCliente
 		var plan sqlPlan
 
-		clienteMap := tools.StructColumnMap(&cliente)
-		planMap := tools.StructColumnMap(&plan)
-
 		// Assuming the fields of Cliente and Plan are of types that Scan understands (e.g., int, string, etc.)
-		err := rows.Scan(append(clienteMap, planMap...)...)
+		err := rows.Scan(&cliente.Id, &cliente.Nombre, &cliente.IdPlan, &plan.Id, &plan.Nombre, &plan.QuotaDay, &plan.QuotaMonth)
 		if err != nil {
 			log.Fatal(err)
 		}
 
+		mailingCliente, err := convertSQLClienteToMailingCliente(cliente)
+		if err != nil {
+			return nil, fmt.Errorf("error converting sqlCliente to mailing.Cliente: %v", cliente)
+		}
+
+		mailingPlan, err := convertSQLPlanToMailingPlan(plan)
+		if err != nil {
+			return nil, fmt.Errorf("error converting sqlPlan to mailing.Plan: %v", err)
+		}
+
+		responseData = append(responseData, struct {
+			Client mailing.Cliente
+			Plan   mailing.Plan
+		}{Client: mailingCliente, Plan: mailingPlan})
+
 		fmt.Printf("Customer: %+v, Planes: %+v", cliente, plan)
 	}
 
-	return nil
+	return responseData, nil
 }
