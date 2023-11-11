@@ -83,8 +83,6 @@ func (r *ClienteRepository) Get(ctx context.Context) ([]struct {
 			Client mailing.Cliente
 			Plan   mailing.Plan
 		}{Client: mailingCliente, Plan: mailingPlan})
-
-		fmt.Printf("Customer: %+v, Planes: %+v", cliente, plan)
 	}
 
 	return responseData, nil
