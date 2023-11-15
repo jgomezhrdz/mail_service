@@ -8,11 +8,12 @@ import (
 	mailing "mail_service/internal"
 
 	"github.com/huandu/go-sqlbuilder"
+	"gorm.io/gorm"
 )
 
 // ClienteRepository is a MySQL mooc.ClienteRepository implementation.
 type ClienteRepository struct {
-	db *sql.DB
+	db *gorm.DB
 }
 
 // NewClienteRepository initializes a MySQL-based implementation of mooc.ClienteRepository.
@@ -44,6 +45,19 @@ func (r *ClienteRepository) Get(ctx context.Context) ([]struct {
 	Client mailing.Cliente
 	Plan   mailing.Plan
 }, error) {
+
+	var mysqlResponse []struct {
+		Client sqlCliente `gorm:"embedded"`
+		Plan   sqlPlan    `gorm:"embedded"`
+	}
+
+	err := r.db.
+		WithContext(ctx).
+		Model(&mailing.Cliente{}).
+		Select("clientes.*, planes.*").
+		Joins("INNER JOIN planes ON clientes.id_plan = planes.id").
+		Scan(&responseData).Error
+
 	sb :=
 		sqlbuilder.Select("clientes.*", "planes.*").From("clientes").JoinWithOption(sqlbuilder.InnerJoin, "planes", "clientes.id_plan = planes.id")
 	sql, args := sb.Build()

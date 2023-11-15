@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"mail_service/internal/platform/server"
 	"mail_service/internal/platform/storage/mysql"
+	cliente_services "mail_service/internal/services/cliente"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -28,7 +29,8 @@ func Run() error {
 	}
 
 	clienteReposiroty := mysql.NewClienteRepository(db)
+	clienteServices := cliente_services.NewClienteService(clienteReposiroty)
 
-	srv := server.New(host, port, clienteReposiroty)
+	srv := server.New(host, port, clienteServices)
 	return srv.Run()
 }

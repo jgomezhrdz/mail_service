@@ -1,6 +1,8 @@
 package mailing
 
-import "mail_service/internal/platform/shared/types"
+import (
+	types "mail_service/internal/kit/types"
+)
 
 // Course is the data structure that represents a course.
 type Plan struct {

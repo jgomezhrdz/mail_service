@@ -1,9 +1,11 @@
 package clientes
 
 import (
+	"errors"
 	"net/http"
 
-	mailing "mail_service/internal"
+	"mail_service/internal/platform/shared/types"
+	cliente_services "mail_service/internal/services/cliente"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,7 +17,7 @@ type createRequest struct {
 }
 
 // CreateHandler returns an HTTP handler for courses creation.
-func CreateHandler(clienteReposiroty mailing.ClienteRepository) gin.HandlerFunc {
+func CreateHandler(clienteService cliente_services.ClienteService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req createRequest
 
@@ -24,17 +26,23 @@ func CreateHandler(clienteReposiroty mailing.ClienteRepository) gin.HandlerFunc 
 			return
 		}
 
-		cliente, err := mailing.NewCliente(req.IDCliente, req.Nombre, req.IDPlan)
+		err := clienteService.CreateCliente(ctx, req.IDCliente, req.Nombre, req.IDPlan)
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, err.Error())
 			return
 		}
 
-		if err := clienteReposiroty.Save(ctx, cliente); err != nil {
-			ctx.JSON(http.StatusInternalServerError, err.Error())
-			return
+		if err != nil {
+			switch {
+			case errors.Is(err, types.ErrEmptyString), errors.Is(err, types.ErrInvalidID), errors.Is(err, types.ErrNegativaString):
+				ctx.JSON(http.StatusBadRequest, err.Error())
+				return
+			default:
+				ctx.JSON(http.StatusInternalServerError, err.Error())
+				return
+			}
 		}
 
-		ctx.JSON(http.StatusCreated, cliente.ID().Value())
+		ctx.Status(http.StatusCreated)
 	}
 }

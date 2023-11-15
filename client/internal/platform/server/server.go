@@ -3,10 +3,10 @@ package server
 import (
 	"fmt"
 	"log"
-	mailing "mail_service/internal"
 	"mail_service/internal/platform/server/handler/clientes"
 	"mail_service/internal/platform/server/handler/health"
 	"mail_service/internal/platform/server/middleware/cors"
+	cliente_services "mail_service/internal/services/cliente"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,15 +15,14 @@ type Server struct {
 	httpAddr string
 	engine   *gin.Engine
 
-	clienteReposiroty mailing.ClienteRepository
+	clienteService cliente_services.ClienteService
 }
 
-func New(host string, port uint, clienteReposiroty mailing.ClienteRepository) Server {
+func New(host string, port uint, clienteService cliente_services.ClienteService) Server {
 	srv := Server{
-		engine:   gin.New(),
-		httpAddr: fmt.Sprintf("%s:%d", host, port),
-
-		clienteReposiroty: clienteReposiroty,
+		engine:         gin.New(),
+		httpAddr:       fmt.Sprintf("%s:%d", host, port),
+		clienteService: clienteService,
 	}
 
 	srv.registerRoutes()
@@ -39,6 +38,6 @@ func (s *Server) registerRoutes() {
 	s.engine.Use(cors.Middleware())
 
 	s.engine.GET("/health", health.CheckHandler())
-	s.engine.GET("/courses", clientes.GetHandler(s.clienteReposiroty))
-	s.engine.POST("/courses", clientes.CreateHandler(s.clienteReposiroty))
+	s.engine.GET("/clientes", clientes.GetHandler(s.clienteService))
+	s.engine.POST("/clientes", clientes.CreateHandler(s.clienteService))
 }

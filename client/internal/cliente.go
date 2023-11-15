@@ -2,7 +2,7 @@ package mailing
 
 import (
 	"context"
-	"mail_service/internal/platform/shared/types"
+	types "mail_service/internal/kit/types"
 )
 
 type Cliente struct {
@@ -11,12 +11,19 @@ type Cliente struct {
 	idPlan types.UUID
 }
 
+//go:generate mockery --case=snake --outpkg=storagemocks --output=platform/storage/storagemocks --name=ClienteRepository
 type ClienteRepository interface {
 	Get(ctx context.Context) ([]struct {
 		Client Cliente
 		Plan   Plan
 	}, error)
 	Save(ctx context.Context, cliente Cliente) error
+}
+
+type ClientesResponse []ClienteResponse
+type ClienteResponse struct {
+	Client map[string]interface{}
+	Plan   map[string]interface{}
 }
 
 // NewCourse creates a new course.
