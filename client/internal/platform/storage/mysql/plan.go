@@ -2,9 +2,9 @@ package mysql
 
 import mailing "mail_service/internal"
 
-const (
-	sqlPlanTable = "planes"
-)
+func (sqlPlan) TableName() string {
+	return "planes"
+}
 
 type sqlPlan struct {
 	Id         string `db:"id"`

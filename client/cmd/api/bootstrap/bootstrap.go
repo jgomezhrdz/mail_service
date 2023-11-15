@@ -1,11 +1,14 @@
 package bootstrap
 
 import (
-	"database/sql"
 	"fmt"
 	"mail_service/internal/platform/server"
 	"mail_service/internal/platform/storage/mysql"
 	cliente_services "mail_service/internal/services/cliente"
+
+	gormsql "gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -23,7 +26,9 @@ const (
 
 func Run() error {
 	mysqlURI := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s", dbUser, dbPass, dbHost, dbPort, dbName)
-	db, err := sql.Open("mysql", mysqlURI)
+	db, err := gorm.Open(gormsql.Open(mysqlURI), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
+	})
 	if err != nil {
 		return err
 	}

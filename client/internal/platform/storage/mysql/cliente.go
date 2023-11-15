@@ -2,9 +2,9 @@ package mysql
 
 import mailing "mail_service/internal"
 
-const (
-	sqlClienteTable = "clientes"
-)
+func (sqlCliente) TableName() string {
+	return "clientes"
+}
 
 type sqlCliente struct {
 	Id     string `db:"id"`

@@ -2,12 +2,9 @@ package mysql
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
-	"log"
 	mailing "mail_service/internal"
 
-	"github.com/huandu/go-sqlbuilder"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +14,7 @@ type ClienteRepository struct {
 }
 
 // NewClienteRepository initializes a MySQL-based implementation of mooc.ClienteRepository.
-func NewClienteRepository(db *sql.DB) *ClienteRepository {
+func NewClienteRepository(db *gorm.DB) *ClienteRepository {
 	return &ClienteRepository{
 		db: db,
 	}
@@ -25,14 +22,13 @@ func NewClienteRepository(db *sql.DB) *ClienteRepository {
 
 // Save implements the mooc.ClienteRepository interface.
 func (r *ClienteRepository) Save(ctx context.Context, cliente mailing.Cliente) error {
-	clientSQLStruct := sqlbuilder.NewStruct(new(sqlCliente))
-	query, args := clientSQLStruct.InsertInto(sqlClienteTable, sqlCliente{
+	sqlClienteModel := sqlCliente{
 		Id:     cliente.ID().Value(),
 		Nombre: cliente.NOMBRE().Value(),
 		IdPlan: cliente.IDPLAN().Value(),
-	}).Build()
+	}
 
-	_, err := r.db.ExecContext(ctx, query, args...)
+	err := r.db.WithContext(ctx).Create(&sqlClienteModel).Error
 	if err != nil {
 		return fmt.Errorf("error trying to persist cliente on database: %v", err)
 	}
@@ -56,39 +52,24 @@ func (r *ClienteRepository) Get(ctx context.Context) ([]struct {
 		Model(&mailing.Cliente{}).
 		Select("clientes.*, planes.*").
 		Joins("INNER JOIN planes ON clientes.id_plan = planes.id").
-		Scan(&responseData).Error
+		Scan(&mysqlResponse).Error
 
-	sb :=
-		sqlbuilder.Select("clientes.*", "planes.*").From("clientes").JoinWithOption(sqlbuilder.InnerJoin, "planes", "clientes.id_plan = planes.id")
-	sql, args := sb.Build()
-
-	rows, err := r.db.QueryContext(ctx, sql, args...)
 	if err != nil {
 		return nil, fmt.Errorf("error trying to get cliente on database: %v", err)
 	}
-	defer rows.Close()
 
 	var responseData []struct {
 		Client mailing.Cliente
 		Plan   mailing.Plan
 	}
 
-	for rows.Next() {
-		var cliente sqlCliente
-		var plan sqlPlan
-
-		// Assuming the fields of Cliente and Plan are of types that Scan understands (e.g., int, string, etc.)
-		err := rows.Scan(&cliente.Id, &cliente.Nombre, &cliente.IdPlan, &plan.Id, &plan.Nombre, &plan.QuotaDay, &plan.QuotaMonth)
+	for _, item := range mysqlResponse {
+		mailingCliente, err := convertSQLClienteToMailingCliente(item.Client)
 		if err != nil {
-			log.Fatal(err)
+			return nil, fmt.Errorf("error converting sqlCliente to mailing.Cliente: %v", item.Client)
 		}
 
-		mailingCliente, err := convertSQLClienteToMailingCliente(cliente)
-		if err != nil {
-			return nil, fmt.Errorf("error converting sqlCliente to mailing.Cliente: %v", cliente)
-		}
-
-		mailingPlan, err := convertSQLPlanToMailingPlan(plan)
+		mailingPlan, err := convertSQLPlanToMailingPlan(item.Plan)
 		if err != nil {
 			return nil, fmt.Errorf("error converting sqlPlan to mailing.Plan: %v", err)
 		}

@@ -4,7 +4,7 @@ import (
 	"errors"
 	"net/http"
 
-	"mail_service/internal/platform/shared/types"
+	"mail_service/internal/kit/types"
 	cliente_services "mail_service/internal/services/cliente"
 
 	"github.com/gin-gonic/gin"

@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"mail_service/internal/platform/storage/storagemocks"
+	cliente_services "mail_service/internal/services/cliente"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -16,12 +17,18 @@ import (
 )
 
 func TestHandler_Create(t *testing.T) {
-	clienteReposiroty := new(storagemocks.ClienteRepository)
-	clienteReposiroty.On("Save", mock.Anything, mock.AnythingOfType("mailing.Cliente")).Return(nil)
+	repositoryMock := new(storagemocks.ClienteRepository)
+	repositoryMock.On(
+		"Save",
+		mock.Anything,
+		mock.Anything,
+	).Return(nil)
+
+	createClienteSrv := cliente_services.NewClienteService(repositoryMock)
 
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
-	r.POST("/clientes", CreateHandler(clienteReposiroty))
+	r.POST("/clientes", CreateHandler(createClienteSrv))
 
 	t.Run("given an invalid request it returns 400", func(t *testing.T) {
 		createCourseReq := createRequest{
