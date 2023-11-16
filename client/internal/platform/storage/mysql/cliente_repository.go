@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	mailing "mail_service/internal"
+	"mail_service/internal/kit/criteria"
 
 	"gorm.io/gorm"
 )
@@ -47,11 +48,15 @@ func (r *ClienteRepository) Get(ctx context.Context) ([]struct {
 		Plan   sqlPlan    `gorm:"embedded"`
 	}
 
+	filters := [][]criteria.Filter{}
+
+	query, values := criteria.ParseConditions(filters)
+
 	err := r.db.
 		WithContext(ctx).
-		Model(&mailing.Cliente{}).
+		Model(&sqlCliente{}).
 		Select("clientes.*, planes.*").
-		Joins("INNER JOIN planes ON clientes.id_plan = planes.id").
+		Joins("INNER JOIN planes ON clientes.id_plan = planes.id").Where(query, values...).
 		Scan(&mysqlResponse).Error
 
 	if err != nil {
