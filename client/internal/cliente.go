@@ -2,6 +2,7 @@ package mailing
 
 import (
 	"context"
+	"mail_service/internal/kit/event"
 	types "mail_service/internal/kit/types"
 )
 
@@ -9,6 +10,8 @@ type Cliente struct {
 	id     types.UUID
 	nombre types.NonEmptyString
 	idPlan types.UUID
+
+	events []event.Event
 }
 
 //go:generate mockery --case=snake --outpkg=storagemocks --output=platform/storage/storagemocks --name=ClienteRepository
@@ -69,6 +72,18 @@ func (c Cliente) TOJSON() map[string]interface{} {
 		"id":     c.ID().Value(),
 		"nombre": c.NOMBRE().Value(),
 		"idPlan": c.IDPLAN().Value(),
-		// Add other fields as needed
 	}
+}
+
+// Record records a new domain event.
+func (c *Cliente) Record(evt event.Event) {
+	c.events = append(c.events, evt)
+}
+
+// PullEvents returns all the recorded domain events.
+func (c Cliente) PullEvents() []event.Event {
+	evt := c.events
+	c.events = []event.Event{}
+
+	return evt
 }

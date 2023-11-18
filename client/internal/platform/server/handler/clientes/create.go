@@ -27,6 +27,7 @@ func CreateHandler(clienteService cliente_services.ClienteService) gin.HandlerFu
 		}
 
 		err := clienteService.CreateCliente(ctx, req.IDCliente, req.Nombre, req.IDPlan)
+
 		if err != nil {
 			ctx.JSON(http.StatusBadRequest, err.Error())
 			return
