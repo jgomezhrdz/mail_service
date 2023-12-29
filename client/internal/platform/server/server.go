@@ -7,7 +7,7 @@ import (
 	"mail_service/internal/platform/server/handler/clientes"
 	"mail_service/internal/platform/server/handler/health"
 	"mail_service/internal/platform/server/middleware/cors"
-	cliente_services "mail_service/internal/services/cliente"
+	cliente_services "mail_service/internal/services/cliente_services"
 	"net/http"
 	"os"
 	"os/signal"
@@ -27,7 +27,7 @@ type Server struct {
 
 func New(ctx context.Context, host string, port uint, shutdownTimeout time.Duration, clienteService cliente_services.ClienteService) (context.Context, Server) {
 	srv := Server{
-		engine:          gin.New(),
+		engine:          gin.Default(),
 		httpAddr:        fmt.Sprintf("%s:%d", host, port),
 		shutdownTimeout: shutdownTimeout,
 		clienteService:  clienteService,

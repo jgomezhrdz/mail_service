@@ -1,7 +1,7 @@
 package clientes
 
 import (
-	cliente_services "mail_service/internal/services/cliente"
+	cliente_services "mail_service/internal/services/cliente_services"
 	"net/http"
 
 	"github.com/gin-gonic/gin"

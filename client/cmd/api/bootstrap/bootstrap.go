@@ -7,7 +7,7 @@ import (
 	"mail_service/internal/platform/bus/inmemory"
 	"mail_service/internal/platform/server"
 	"mail_service/internal/platform/storage/mysql"
-	cliente_services "mail_service/internal/services/cliente"
+	cliente_services "mail_service/internal/services/cliente_services"
 	"time"
 
 	gormsql "gorm.io/driver/mysql"
@@ -18,15 +18,15 @@ import (
 )
 
 const (
-	host            = "localhost"
+	host            = "0.0.0.0"
 	port            = 8080
 	shutdownTimeout = 10 * time.Second
 
-	dbUser    = "root"
-	dbPass    = "pass"
-	dbHost    = "localhost"
-	dbPort    = "10101"
-	dbName    = "example"
+	dbUser    = "codely"
+	dbPass    = "codely"
+	dbHost    = "mysql"
+	dbPort    = "3306"
+	dbName    = "codely"
 	dbTimeout = 5 * time.Second
 )
 

@@ -10,7 +10,6 @@ require (
 require (
 	github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc // indirect
 	github.com/google/go-cmp v0.5.9 // indirect
-	github.com/huandu/xstrings v1.4.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
 	github.com/kr/text v0.2.0 // indirect
@@ -32,7 +31,6 @@ require (
 	github.com/go-sql-driver/mysql v1.7.1
 	github.com/goccy/go-json v0.10.2 // indirect
 	github.com/google/uuid v1.4.0
-	github.com/huandu/go-sqlbuilder v1.23.0
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/klauspost/cpuid/v2 v2.2.4 // indirect
 	github.com/leodido/go-urn v1.2.4 // indirect

@@ -4,12 +4,32 @@ services:
   api:
     build: 
       context: .
-      dockerfile: Dockerfile.debug
+      dockerfile: Dockerfile.dev
       args:
         - ports=8080
     environment:
       MOOC_HOST: 0.0.0.0
+    volumes:
+     - ./migrations:/migrations
     ports:
       - 8080:8080
+      - 4000:4000
       - 2345:2345
-      
+    depends_on:
+      - mysql
+  
+  mysql:
+    image: mysql:8.0.22
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./sql:/docker-entrypoint-initdb.d
+    environment:
+      MYSQL_DATABASE: codely
+      MYSQL_USER: codely
+      MYSQL_PASSWORD: codely
+      MYSQL_ROOT_PASSWORD: codely
+    expose:
+      - 3306
+
+volumes:
+  mysql_data:

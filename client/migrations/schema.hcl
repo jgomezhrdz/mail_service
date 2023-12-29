@@ -1,10 +1,10 @@
-schema "example" {
+schema "codely" {
   charset = "utf8mb4"
   collate = "utf8mb4_0900_ai_ci"
 }
 
 table "clientes" {
-  schema = schema.example
+  schema = schema.codely
   column "id" {
     null = false
     type = varchar(36)  # Assuming UUID is stored as a varchar(36)
@@ -27,7 +27,7 @@ table "clientes" {
 }
 
 table "planes" {
-  schema = schema.example
+  schema = schema.codely
   column "id" {
     null = false
     type = varchar(36)  # Assuming UUID is stored as a varchar(36)

@@ -7,7 +7,7 @@ import (
 	"mail_service/internal/kit/event"
 	"mail_service/internal/kit/event/eventmocks"
 	"mail_service/internal/platform/storage/storagemocks"
-	cliente_services "mail_service/internal/services/cliente"
+	cliente_services "mail_service/internal/services/cliente_services"
 	"net/http"
 	"net/http/httptest"
 	"testing"
