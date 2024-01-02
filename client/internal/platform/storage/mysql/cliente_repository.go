@@ -38,17 +38,9 @@ func (r *ClienteRepository) Save(ctx context.Context, cliente mailing.Cliente) e
 }
 
 // Save implements the mooc.ClienteRepository interface.
-func (r *ClienteRepository) Get(ctx context.Context) ([]struct {
-	Client mailing.Cliente
-	Plan   mailing.Plan
-}, error) {
+func (r *ClienteRepository) Get(ctx context.Context, filters [][]criteria.Filter) (mailing.ClientesResponse, error) {
 
-	var mysqlResponse []struct {
-		Client sqlCliente `gorm:"embedded"`
-		Plan   sqlPlan    `gorm:"embedded"`
-	}
-
-	filters := [][]criteria.Filter{}
+	var mysqlResponse []sqlClienteResponse
 
 	query, values := criteria.ParseConditions(filters)
 
@@ -63,27 +55,12 @@ func (r *ClienteRepository) Get(ctx context.Context) ([]struct {
 		return nil, fmt.Errorf("error trying to get cliente on database: %v", err)
 	}
 
-	var responseData []struct {
-		Client mailing.Cliente
-		Plan   mailing.Plan
-	}
+	var responseData mailing.ClientesResponse
 
 	for _, item := range mysqlResponse {
-		mailingCliente, err := convertSQLClienteToMailingCliente(item.Client)
-		if err != nil {
-			return nil, fmt.Errorf("error converting sqlCliente to mailing.Cliente: %v", item.Client)
-		}
-
-		mailingPlan, err := convertSQLPlanToMailingPlan(item.Plan)
-		if err != nil {
-			return nil, fmt.Errorf("error converting sqlPlan to mailing.Plan: %v", err)
-		}
-
-		responseData = append(responseData, struct {
-			Client mailing.Cliente
-			Plan   mailing.Plan
-		}{Client: mailingCliente, Plan: mailingPlan})
+		var responseElem mailing.ClienteResponse
+		convertStructToDomain(item, &responseElem)
+		responseData = append(responseData, responseElem)
 	}
-
 	return responseData, nil
 }

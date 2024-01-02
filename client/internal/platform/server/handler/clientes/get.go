@@ -12,14 +12,25 @@ func GetHandler(clienteService cliente_services.ClienteService) gin.HandlerFunc 
 
 		data, err := clienteService.GetCliente(ctx)
 
+		var response []interface{}
 		if err != nil {
 			switch {
 			default:
 				ctx.JSON(http.StatusInternalServerError, err.Error())
 				return
 			}
+		} else {
+			for _, item := range data {
+				response = append(response, struct {
+					Client interface{}
+					Plan   interface{}
+				}{
+					Client: item.Client.TOJSON(),
+					Plan:   item.Plan.TOJSON(),
+				})
+			}
 		}
 
-		ctx.JSON(http.StatusOK, gin.H{"data": data})
+		ctx.JSON(http.StatusOK, gin.H{"data": response})
 	}
 }

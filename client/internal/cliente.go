@@ -2,6 +2,7 @@ package mailing
 
 import (
 	"context"
+	"mail_service/internal/kit/criteria"
 	"mail_service/internal/kit/event"
 	types "mail_service/internal/kit/types"
 )
@@ -16,17 +17,14 @@ type Cliente struct {
 
 //go:generate mockery --case=snake --outpkg=storagemocks --output=platform/storage/storagemocks --name=ClienteRepository
 type ClienteRepository interface {
-	Get(ctx context.Context) ([]struct {
-		Client Cliente
-		Plan   Plan
-	}, error)
+	Get(ctx context.Context, filters [][]criteria.Filter) (ClientesResponse, error)
 	Save(ctx context.Context, cliente Cliente) error
 }
 
 type ClientesResponse []ClienteResponse
 type ClienteResponse struct {
-	Client map[string]interface{}
-	Plan   map[string]interface{}
+	Client Cliente
+	Plan   Plan
 }
 
 // NewCourse creates a new course.

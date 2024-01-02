@@ -3,20 +3,18 @@ package cliente_services
 import (
 	"context"
 	mailing "mail_service/internal"
+	"mail_service/internal/kit/criteria"
 )
 
 func (s ClienteService) GetCliente(ctx context.Context) (mailing.ClientesResponse, error) {
-	result, err := s.clienteRepository.Get(ctx)
+	result, err := s.clienteRepository.Get(ctx, [][]criteria.Filter{})
 
 	var jsonData mailing.ClientesResponse
 
-	for _, instance := range result {
-		clientJSON := instance.Client.TOJSON() // Assuming ToJSON is a method in mailing.Cliente
-		planJSON := instance.Plan.TOJSON()     // Assuming ToJSON is a method in mailing.Plan
-
-		jsonData = append(jsonData, mailing.ClienteResponse{
-			Client: clientJSON, Plan: planJSON,
-		})
+	if len(result) == 0 {
+		jsonData = []mailing.ClienteResponse{}
+	} else {
+		jsonData = result
 	}
 
 	return jsonData, err

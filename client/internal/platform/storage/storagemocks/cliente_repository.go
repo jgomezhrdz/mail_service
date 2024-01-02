@@ -5,6 +5,7 @@ package storagemocks
 import (
 	context "context"
 	mailing "mail_service/internal"
+	criteria "mail_service/internal/kit/criteria"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -14,40 +15,25 @@ type ClienteRepository struct {
 	mock.Mock
 }
 
-// Get provides a mock function with given fields: ctx
-func (_m *ClienteRepository) Get(ctx context.Context) ([]struct {
-	Client mailing.Cliente
-	Plan   mailing.Plan
-}, error) {
-	ret := _m.Called(ctx)
+// Get provides a mock function with given fields: ctx, filters
+func (_m *ClienteRepository) Get(ctx context.Context, filters [][]criteria.Filter) (mailing.ClientesResponse, error) {
+	ret := _m.Called(ctx, filters)
 
-	var r0 []struct {
-		Client mailing.Cliente
-		Plan   mailing.Plan
-	}
+	var r0 mailing.ClientesResponse
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context) ([]struct {
-		Client mailing.Cliente
-		Plan   mailing.Plan
-	}, error)); ok {
-		return rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, [][]criteria.Filter) (mailing.ClientesResponse, error)); ok {
+		return rf(ctx, filters)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context) []struct {
-		Client mailing.Cliente
-		Plan   mailing.Plan
-	}); ok {
-		r0 = rf(ctx)
+	if rf, ok := ret.Get(0).(func(context.Context, [][]criteria.Filter) mailing.ClientesResponse); ok {
+		r0 = rf(ctx, filters)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]struct {
-				Client mailing.Cliente
-				Plan   mailing.Plan
-			})
+			r0 = ret.Get(0).(mailing.ClientesResponse)
 		}
 	}
 
-	if rf, ok := ret.Get(1).(func(context.Context) error); ok {
-		r1 = rf(ctx)
+	if rf, ok := ret.Get(1).(func(context.Context, [][]criteria.Filter) error); ok {
+		r1 = rf(ctx, filters)
 	} else {
 		r1 = ret.Error(1)
 	}
