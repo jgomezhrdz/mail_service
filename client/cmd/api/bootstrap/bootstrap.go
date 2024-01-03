@@ -3,7 +3,6 @@ package bootstrap
 import (
 	"context"
 	"fmt"
-	mailing "mail_service/internal"
 	"mail_service/internal/platform/bus/inmemory"
 	"mail_service/internal/platform/server"
 	"mail_service/internal/platform/storage/mysql"
@@ -46,12 +45,11 @@ func Run() error {
 	clienteReposiroty := mysql.NewClienteRepository(db)
 
 	clienteServices := cliente_services.NewClienteService(clienteReposiroty, eventBus)
-	increasingCourseCounterService := cliente_services.NewCourseCounterService()
 
-	eventBus.Subscribe(
-		mailing.ClienteCreatedEventType,
-		cliente_services.NewIncreaseCoursesCounterOnCourseCreated(increasingCourseCounterService),
-	)
+	// eventBus.Subscribe(
+	// 	mailing.ClienteCreatedEventType,
+	// 	cliente_services.NewIncreaseCoursesCounterOnCourseCreated(increasingCourseCounterService),
+	// )
 
 	ctx, srv := server.New(context.Background(), host, port, shutdownTimeout, clienteServices)
 	return srv.Run(ctx)

@@ -4,9 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"mail_service/internal/platform/server/handler/clientes"
-	"mail_service/internal/platform/server/handler/health"
-	"mail_service/internal/platform/server/middleware/cors"
 	cliente_services "mail_service/internal/services/cliente_services"
 	"net/http"
 	"os"
@@ -66,12 +63,4 @@ func serverContext(ctx context.Context) context.Context {
 	}()
 
 	return ctx
-}
-
-func (s *Server) registerRoutes() {
-	s.engine.Use(cors.Middleware())
-
-	s.engine.GET("/health", health.CheckHandler())
-	s.engine.GET("/clientes", clientes.GetHandler(s.clienteService))
-	s.engine.POST("/clientes", clientes.CreateHandler(s.clienteService))
 }

@@ -12,26 +12,21 @@ import (
 
 type updateRequest struct {
 	IDCliente string `json:"idCliente" binding:"required"`
-	Nombre    string `json:"nombre"    `
-	IDPlan    string `json:"idPlan"    `
+	Nombre    string `json:"nombre"`
+	IDPlan    string `json:"idPlan"`
 }
 
 // CreateHandler returns an HTTP handler for courses creation.
 func UpdateHandler(clienteService cliente_services.ClienteService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req createRequest
+		var req updateRequest
 
 		if err := ctx.BindJSON(&req); err != nil {
 			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "request": req})
 			return
 		}
 
-		err := clienteService.CreateCliente(ctx, req.IDCliente, req.Nombre, req.IDPlan)
-
-		if err != nil {
-			ctx.JSON(http.StatusBadRequest, err.Error())
-			return
-		}
+		err := clienteService.UpdateCliente(ctx, req.IDCliente, req.Nombre, req.IDPlan)
 
 		if err != nil {
 			switch {
@@ -44,6 +39,6 @@ func UpdateHandler(clienteService cliente_services.ClienteService) gin.HandlerFu
 			}
 		}
 
-		ctx.Status(http.StatusCreated)
+		ctx.Status(http.StatusOK)
 	}
 }

@@ -2,7 +2,9 @@ package clientes
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
+	"net/url"
 
 	"mail_service/internal/kit/types"
 	cliente_services "mail_service/internal/services/cliente_services"
@@ -10,23 +12,21 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type createRequest struct {
-	IDCliente string `json:"idCliente" binding:"required"`
-	Nombre    string `json:"nombre"    binding:"required"`
-	IDPlan    string `json:"idPlan"  binding:"required"`
-}
-
 // CreateHandler returns an HTTP handler for courses creation.
-func CreateHandler(clienteService cliente_services.ClienteService) gin.HandlerFunc {
+func DeleteHandler(clienteService cliente_services.ClienteService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		var req createRequest
-
-		if err := ctx.BindJSON(&req); err != nil {
-			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error(), "request": req})
+		params, err := url.ParseQuery(ctx.Request.URL.RawQuery)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, err.Error())
 			return
 		}
 
-		err := clienteService.CreateCliente(ctx, req.IDCliente, req.Nombre, req.IDPlan)
+		if ok := params.Has("id"); !ok {
+			ctx.JSON(http.StatusInternalServerError, fmt.Errorf("es necesario especificar el elemento a borrar"))
+			return
+		}
+
+		err = clienteService.DeleteCliente(ctx, params.Get("id"))
 
 		if err != nil {
 			switch {

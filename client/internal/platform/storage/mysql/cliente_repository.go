@@ -44,7 +44,7 @@ func (r *ClienteRepository) Update(ctx context.Context, cliente mailing.Cliente)
 		IdPlan: cliente.IDPLAN().Value(),
 	}
 
-	err := r.db.WithContext(ctx).Update(sqlClienteModel.Id, &sqlClienteModel).Error
+	err := r.db.WithContext(ctx).Find(&sqlCliente{}).Updates(&sqlClienteModel).Error
 	if err != nil {
 		return fmt.Errorf("error trying to modify cliente on database: %v", err)
 	}
@@ -52,21 +52,28 @@ func (r *ClienteRepository) Update(ctx context.Context, cliente mailing.Cliente)
 	return nil
 }
 
-func (r *ClienteRepository) Delete(ctx context.Context, cliente mailing.Cliente) error {
-	err := r.db.WithContext(ctx).Delete(&cliente).Error
+func (r *ClienteRepository) Delete(ctx context.Context, id string) error {
+	err := r.db.WithContext(ctx).Delete(&mailing.Cliente{}, "id = ?", id).Error
 	if err != nil {
 		return fmt.Errorf("error trying to delete cliente on database: %v", err)
 	}
 	return err
 }
 
-func (r *ClienteRepository) Find(ctx context.Context, id string) (*mailing.Cliente, error) {
-	var client mailing.Cliente
-	err := r.db.WithContext(ctx).First(&client, id).Error
+func (r *ClienteRepository) Find(ctx context.Context, id string) (mailing.Cliente, error) {
+	var item sqlCliente
+	err := r.db.WithContext(ctx).First(&item, "id = ?", id).Error
 	if err != nil {
-		return nil, err
+		return mailing.Cliente{}, err
 	}
-	return &client, nil
+	result, err := item.convertSQLToDomain()
+	if err != nil {
+		return mailing.Cliente{}, err
+	}
+	if clienteResponse, ok := result.(mailing.Cliente); ok {
+		return clienteResponse, nil
+	}
+	return mailing.Cliente{}, fmt.Errorf("error converting the domain data")
 }
 
 // Save implements the mooc.ClienteRepository interface.
@@ -75,12 +82,7 @@ func (r *ClienteRepository) Get(ctx context.Context, criteria criteriamanager.Cr
 	var mysqlResponse []sqlClienteResponse
 
 	err := selectFacade(
-		ctx,
-		r.db,
-		criteria,
-		sqlCliente{},
-		&mysqlResponse,
-		"clientes.*, planes.*",
+		ctx, r.db, criteria, sqlCliente{}, &mysqlResponse, "clientes.*, planes.*",
 		[]string{"INNER JOIN planes ON clientes.id_plan = planes.id"},
 	)
 

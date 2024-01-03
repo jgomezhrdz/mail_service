@@ -15,6 +15,44 @@ type ClienteRepository struct {
 	mock.Mock
 }
 
+// Delete provides a mock function with given fields: ctx, id
+func (_m *ClienteRepository) Delete(ctx context.Context, id string) error {
+	ret := _m.Called(ctx, id)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, id)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Find provides a mock function with given fields: ctx, id
+func (_m *ClienteRepository) Find(ctx context.Context, id string) (mailing.Cliente, error) {
+	ret := _m.Called(ctx, id)
+
+	var r0 mailing.Cliente
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) (mailing.Cliente, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, string) mailing.Cliente); ok {
+		r0 = rf(ctx, id)
+	} else {
+		r0 = ret.Get(0).(mailing.Cliente)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Get provides a mock function with given fields: ctx, criteria
 func (_m *ClienteRepository) Get(ctx context.Context, criteria criteriamanager.Criteria) (mailing.ClientesResponse, error) {
 	ret := _m.Called(ctx, criteria)
@@ -43,6 +81,20 @@ func (_m *ClienteRepository) Get(ctx context.Context, criteria criteriamanager.C
 
 // Save provides a mock function with given fields: ctx, cliente
 func (_m *ClienteRepository) Save(ctx context.Context, cliente mailing.Cliente) error {
+	ret := _m.Called(ctx, cliente)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, mailing.Cliente) error); ok {
+		r0 = rf(ctx, cliente)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// Update provides a mock function with given fields: ctx, cliente
+func (_m *ClienteRepository) Update(ctx context.Context, cliente mailing.Cliente) error {
 	ret := _m.Called(ctx, cliente)
 
 	var r0 error
