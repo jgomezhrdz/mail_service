@@ -1,12 +1,31 @@
 package mysql
 
 import (
+	"context"
+	"mail_service/internal/kit/criteriamanager"
 	"reflect"
+
+	"gorm.io/gorm"
 )
 
 type SQLEntity interface {
 	convertSQLToDomain() (interface{}, error)
 	TableName() string
+}
+
+func selectFacade(ctx context.Context, db *gorm.DB, criteria criteriamanager.Criteria, model interface{}, response interface{}, selectQuery string, joinQuery []string) error {
+	query, values := criteriamanager.ParseConditions(criteria.GETFILTROS())
+
+	queryBuilder := db.
+		WithContext(ctx).
+		Model(&model).
+		Select(selectQuery)
+
+	for _, item := range joinQuery {
+		queryBuilder.Joins(item)
+	}
+
+	return queryBuilder.Where(query, values...).Scan(response).Error
 }
 
 func convertStructToDomain(src interface{}, dest interface{}) {

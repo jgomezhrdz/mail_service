@@ -1,4 +1,4 @@
-package criteria
+package criteriamanager
 
 import (
 	"fmt"
@@ -10,6 +10,10 @@ type Filter struct {
 	Campo    string
 	Operador string
 	Valor    string
+}
+
+func NewFilter(campo string, operador string, valor string) Filter {
+	return Filter{Campo: campo, Operador: operador, Valor: valor}
 }
 
 func ParseConditions(params [][]Filter) (string, []interface{}) {

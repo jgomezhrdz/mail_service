@@ -2,7 +2,7 @@ package mailing
 
 import (
 	"context"
-	"mail_service/internal/kit/criteria"
+	"mail_service/internal/kit/criteriamanager"
 	"mail_service/internal/kit/event"
 	types "mail_service/internal/kit/types"
 )
@@ -17,8 +17,11 @@ type Cliente struct {
 
 //go:generate mockery --case=snake --outpkg=storagemocks --output=platform/storage/storagemocks --name=ClienteRepository
 type ClienteRepository interface {
-	Get(ctx context.Context, filters [][]criteria.Filter) (ClientesResponse, error)
+	Get(ctx context.Context, criteria criteriamanager.Criteria) (ClientesResponse, error)
+	Find(ctx context.Context, id string) (Cliente, error)
 	Save(ctx context.Context, cliente Cliente) error
+	Update(ctx context.Context, cliente Cliente) error
+	Delete(ctx context.Context, id string) error
 }
 
 type ClientesResponse []ClienteResponse
@@ -50,6 +53,13 @@ func NewCliente(id string, nombre string, idPlan string) (Cliente, error) {
 		nombre: nombreVO,
 		idPlan: planVO,
 	}, nil
+}
+
+func (c Cliente) UPDATE(nombre string, idPlan string) (Cliente, error) {
+	var err error
+	c.nombre, err = types.NewNonEmptyString(nombre)
+	c.idPlan, err = types.NewUUID(idPlan)
+	return c, err
 }
 
 // ID returns the course unique identifier.
