@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 
+	"mail_service/internal/kit/custom_errors"
 	"mail_service/internal/kit/types"
 	cliente_services "mail_service/internal/services/cliente_services"
 
@@ -33,12 +34,15 @@ func DeleteHandler(clienteService cliente_services.ClienteService) gin.HandlerFu
 			case errors.Is(err, types.ErrEmptyString), errors.Is(err, types.ErrInvalidID), errors.Is(err, types.ErrNegativaString):
 				ctx.JSON(http.StatusBadRequest, err.Error())
 				return
+			case errors.Is(err, custom_errors.ErrNotFound):
+				ctx.JSON(http.StatusGone, err.Error())
+				return
 			default:
 				ctx.JSON(http.StatusInternalServerError, err.Error())
 				return
 			}
 		}
 
-		ctx.Status(http.StatusCreated)
+		ctx.Status(http.StatusOK)
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	mailing "mail_service/internal"
 	"mail_service/internal/kit/criteriamanager"
+	"mail_service/internal/kit/custom_errors"
 
 	"gorm.io/gorm"
 )
@@ -53,9 +54,12 @@ func (r *ClienteRepository) Update(ctx context.Context, cliente mailing.Cliente)
 }
 
 func (r *ClienteRepository) Delete(ctx context.Context, id string) error {
-	err := r.db.WithContext(ctx).Delete(&mailing.Cliente{}, "id = ?", id).Error
-	if err != nil {
-		return fmt.Errorf("error trying to delete cliente on database: %v", err)
+	result := r.db.WithContext(ctx).Delete(&mailing.Cliente{}, "id = ?", id)
+	var err error
+	if result.Error != nil {
+		err = result.Error
+	} else if result.RowsAffected == 0 {
+		err = custom_errors.ErrNotFound
 	}
 	return err
 }

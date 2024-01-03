@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	cron_scheduler "mail_service/internal/platform/cron"
 	cliente_services "mail_service/internal/services/cliente_services"
 	"net/http"
 	"os"
@@ -11,11 +12,14 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/robfig/cron"
 )
 
 type Server struct {
 	httpAddr string
 	engine   *gin.Engine
+
+	cronScheduler *cron.Cron
 
 	shutdownTimeout time.Duration
 
@@ -28,9 +32,12 @@ func New(ctx context.Context, host string, port uint, shutdownTimeout time.Durat
 		httpAddr:        fmt.Sprintf("%s:%d", host, port),
 		shutdownTimeout: shutdownTimeout,
 		clienteService:  clienteService,
+		cronScheduler:   cron_scheduler.InitializeCron(),
 	}
 
 	srv.registerRoutes()
+	srv.registerJobs()
+
 	return serverContext(ctx), srv
 }
 
