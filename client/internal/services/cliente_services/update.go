@@ -10,12 +10,12 @@ func (s ClienteService) UpdateCliente(ctx context.Context, id, nombre, idPlan st
 		return err
 	}
 
-	clienteUpdated, err := cliente.UPDATE(nombre, idPlan)
+	err = cliente.UPDATE(nombre, idPlan)
 	if err != nil {
 		return err
 	}
 
-	if err := s.clienteRepository.Update(ctx, clienteUpdated); err != nil {
+	if err := s.clienteRepository.Update(ctx, cliente); err != nil {
 		return err
 	}
 

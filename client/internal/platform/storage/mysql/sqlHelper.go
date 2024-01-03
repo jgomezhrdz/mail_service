@@ -25,6 +25,14 @@ func selectFacade(ctx context.Context, db *gorm.DB, criteria criteriamanager.Cri
 		queryBuilder.Joins(item)
 	}
 
+	if limit := criteria.GETLIMIT(); limit != nil {
+		queryBuilder.Limit(*limit)
+	}
+
+	if offset := criteria.GETOFFSET(); offset != nil {
+		queryBuilder.Offset(*offset)
+	}
+
 	return queryBuilder.Where(query, values...).Scan(response).Error
 }
 

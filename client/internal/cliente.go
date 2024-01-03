@@ -55,19 +55,19 @@ func NewCliente(id string, nombre string, idPlan string) (Cliente, error) {
 	}, nil
 }
 
-func (c Cliente) UPDATE(nombre string, idPlan string) (Cliente, error) {
+func (c *Cliente) UPDATE(nombre string, idPlan string) error {
 	nombreVO, err := types.NewNonEmptyString(nombre)
 	if err != nil {
-		return c, err
+		return err
 	}
 	planVO, err := types.NewUUID(idPlan)
 	if err != nil {
-		return c, err
+		return err
 	}
 	c.nombre = nombreVO
 	c.idPlan = planVO
 
-	return c, nil
+	return nil
 }
 
 // ID returns the course unique identifier.
