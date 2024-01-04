@@ -3,6 +3,7 @@ package cron_scheduler
 import (
 	"errors"
 	"fmt"
+	"log"
 	"regexp"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 )
 
 type CronJob struct {
+	second   string
 	minute   string
 	hour     string
 	monthDay string
@@ -19,20 +21,25 @@ type CronJob struct {
 	cmd      func()
 }
 
+const (
+	VALIDPATTERN = "^(\\*|[0-5]?\\d)(?:-(\\*|[0-5]?\\d))?(?:\\/(\\d+))?$"
+)
+
 var ErrPatternInvalid = errors.New("invalid cron pattern")
 
-func NewCronjob(cmdName, minute, hour, monthDay, month, weekDay string, cmd func()) (CronJob, error) {
-	validValue := "^(\\*|[0-9]{1,2}|[0-9]{1,2}-[0-9]{1,2}|[0-9]{1,2},[0-9]{1,2}(,[0-9]{1,2})*)$"
-	if !isValid(minute, validValue) ||
-		!isValid(hour, validValue) ||
-		!isValid(monthDay, validValue) ||
-		!isValid(month, validValue) ||
-		!isValid(weekDay, validValue) {
+func NewCronjob(cmdName, second, minute, hour, monthDay, month, weekDay string, cmd func()) (CronJob, error) {
+	if !isValid(second) ||
+		!isValid(minute) ||
+		!isValid(hour) ||
+		!isValid(monthDay) ||
+		!isValid(month) ||
+		!isValid(weekDay) {
 		return CronJob{}, fmt.Errorf("%s: "+ErrPatternInvalid.Error(), cmdName)
 	}
 
 	return CronJob{
 		cmdName:  cmdName,
+		second:   second,
 		minute:   minute,
 		hour:     hour,
 		monthDay: monthDay,
@@ -42,13 +49,13 @@ func NewCronjob(cmdName, minute, hour, monthDay, month, weekDay string, cmd func
 	}, nil
 }
 
-func isValid(value string, pattern string) bool {
-	matched, _ := regexp.MatchString(pattern, value)
+func isValid(value string) bool {
+	matched, _ := regexp.MatchString(VALIDPATTERN, value)
 	return matched
 }
 
 func (c CronJob) parseSchedule() string {
-	return c.minute + " " + c.hour + " " + c.monthDay + " " + c.month + " " + c.weekDay
+	return c.second + " " + c.minute + " " + c.hour + " " + c.monthDay + " " + c.month + " " + c.weekDay
 }
 
 func InitializeCron() *cron.Cron {
@@ -61,6 +68,7 @@ func InitializeCron() *cron.Cron {
 
 func RegisterJob(cronManager *cron.Cron, jobs ...CronJob) {
 	for _, job := range jobs {
+		log.Print("Defining Job " + job.cmdName + " at: " + job.parseSchedule())
 		cronManager.AddFunc(job.parseSchedule(), job.cmd)
 	}
 }

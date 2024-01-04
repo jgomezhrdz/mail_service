@@ -16,7 +16,14 @@ type createRequest struct {
 	IDPlan    string `json:"idPlan"  binding:"required"`
 }
 
-// CreateHandler returns an HTTP handler for courses creation.
+// @Summary Add a new pet to the store
+// @Description get string by ID
+// @ID get-string-by-int
+// @Accept  json
+// @Produce  json
+// @Param   some_id     path    int     true        "Some ID"
+// @Success 200 {string} string  "ok"
+// @Router /string/{some_id} [get]
 func CreateHandler(clienteService cliente_services.ClienteService) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var req createRequest

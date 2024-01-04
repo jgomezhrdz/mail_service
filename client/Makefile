@@ -6,3 +6,6 @@ upload:
 
 migrate:
     /usr/bin/local/atlas/atlas schema apply -u "mysql://codely:codely@mysql:3306/codely" --to file:///migrations/schema.hcl
+
+generate-doc:
+	swag init -g ./cmd/api/main.go

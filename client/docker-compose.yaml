@@ -7,6 +7,7 @@ services:
       dockerfile: Dockerfile.dev
       args:
         - ports=8080
+        - DOCKER_BUILDKIT=1
     environment:
       MOOC_HOST: 0.0.0.0
     volumes:

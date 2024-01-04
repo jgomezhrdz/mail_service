@@ -1,10 +1,9 @@
-# Use a minimal base image for Go
-FROM golang:1.19-alpine as builder
-
-WORKDIR /tmp
+FROM golang:1.19-alpine
 
 RUN apk update --no-cache && apk add curl --no-cache
 RUN curl -sSf https://atlasgo.sh | sh
+
+RUN CGO_ENABLED=0 go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/cmd/dlv@latest
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -16,23 +15,10 @@ RUN go mod tidy
 COPY . .
 # Build the Go application
 RUN go build -o app cmd/api/main.go
-
-#------------------------------------------------------------------------------------------
-# Use a lightweight base image for the final image
-FROM golang:1.19-alpine
-
-RUN CGO_ENABLED=0 go install -ldflags "-s -w -extldflags '-static'" github.com/go-delve/delve/cmd/dlv@latest
 # Set a non-root user for better security
 RUN adduser -D -g '' appuser
 USER appuser
-
-COPY --from=builder /usr/local/bin/atlas/ /usr/local/bin/atlas/
-# Copy the compiled Go binary from the builder image
-COPY --from=builder /app/app /app/
-# Set the working directory inside the container
-WORKDIR /app
 # Expose the port that the application will listen on
 EXPOSE $PORT 4000
 # Run the Go binary
 CMD [ "/go/bin/dlv", "--listen=:4000", "--headless=true", "--log=true", "--accept-multiclient", "--api-version=2", "exec", "/app/app" ]
-
